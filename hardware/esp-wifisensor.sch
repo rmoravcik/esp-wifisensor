@@ -239,10 +239,10 @@
 <library name="BMP180_module">
 <packages>
 <package name="BMP180">
-<rectangle x1="-4.064" y1="-0.254" x2="-3.556" y2="0.254" layer="21"/>
-<rectangle x1="-1.524" y1="-0.254" x2="-1.016" y2="0.254" layer="21"/>
-<rectangle x1="1.016" y1="-0.254" x2="1.524" y2="0.254" layer="21"/>
-<rectangle x1="3.556" y1="-0.254" x2="4.064" y2="0.254" layer="21"/>
+<rectangle x1="-4.064" y1="-0.254" x2="-3.556" y2="0.254" layer="51"/>
+<rectangle x1="-1.524" y1="-0.254" x2="-1.016" y2="0.254" layer="51"/>
+<rectangle x1="1.016" y1="-0.254" x2="1.524" y2="0.254" layer="51"/>
+<rectangle x1="3.556" y1="-0.254" x2="4.064" y2="0.254" layer="51"/>
 <pad name="VIN" x="-3.81" y="0" drill="0.8" diameter="1.4224"/>
 <pad name="GND" x="-1.27" y="0" drill="0.8" diameter="1.4224"/>
 <pad name="SCL" x="1.27" y="0" drill="0.8" diameter="1.4224"/>
@@ -304,10 +304,10 @@
 <library name="SHT-21_module">
 <packages>
 <package name="SHT-21">
-<rectangle x1="-4.064" y1="-0.254" x2="-3.556" y2="0.254" layer="21"/>
-<rectangle x1="-1.524" y1="-0.254" x2="-1.016" y2="0.254" layer="21"/>
-<rectangle x1="1.016" y1="-0.254" x2="1.524" y2="0.254" layer="21"/>
-<rectangle x1="3.556" y1="-0.254" x2="4.064" y2="0.254" layer="21"/>
+<rectangle x1="-4.064" y1="-0.254" x2="-3.556" y2="0.254" layer="51"/>
+<rectangle x1="-1.524" y1="-0.254" x2="-1.016" y2="0.254" layer="51"/>
+<rectangle x1="1.016" y1="-0.254" x2="1.524" y2="0.254" layer="51"/>
+<rectangle x1="3.556" y1="-0.254" x2="4.064" y2="0.254" layer="51"/>
 <pad name="VIN" x="-3.81" y="0" drill="0.8" diameter="1.4224"/>
 <pad name="GND" x="-1.27" y="0" drill="0.8" diameter="1.4224" rot="R180"/>
 <pad name="SCL" x="1.27" y="0" drill="0.8" diameter="1.4224"/>
