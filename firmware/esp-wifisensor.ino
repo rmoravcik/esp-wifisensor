@@ -1,43 +1,43 @@
 #include <ESP8266WiFi.h>
 ADC_MODE(ADC_VCC); //vcc read-mode
 
-#define PRESSURE_SENSOR 1
+// #define PRESSURE_SENSOR 1
 
 #include <SHT21.h>
 #ifdef PRESSURE_SENSOR
 #include <Sodaq_BMP085.h>
 #endif
 
-#define VCC_ADJ 1.096
+#define VCC_ADJ 1.035
 
-#define SERIAL_DEBUG 1
+// #define SERIAL_DEBUG 1
 
 const char* ssid = "";
 const char* password = "";
 
 const int sleepTimeS = 15 * 60;
 
-const char* host = "things.ubidots.com";
-const char* token = "";
-const char* device = "";
+const char* server = "api.thingspeak.com";
+String writeAPIKey = "";
 
 SHT21 sht;
 #ifdef PRESSURE_SENSOR
 Sodaq_BMP085 bmp;
 #endif
 
-void setup() 
+void setup()
 {
 #ifdef SERIAL_DEBUG
   Serial.begin(115200);
   Serial.println("Wake up...");
 #endif
-  
+
   sht.begin();
 #ifdef PRESSURE_SENSOR
   bmp.begin(BMP085_STANDARD);
 #endif
 
+  WiFi.setOutputPower(0);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -49,17 +49,17 @@ void setup()
 #ifdef SERIAL_DEBUG
   Serial.println("");
   Serial.println("WiFi connected");
-  
+
   Serial.println(WiFi.localIP());
 
   Serial.print("Connecting to ");
-  Serial.println(host);
+  Serial.println(server);
 #endif
-  
+
   WiFiClient client;
   int retries = 5;
-  const int httpPort = 80;
-  while (!client.connect(host, httpPort) && (retries-- > 0)) {
+
+  while (!client.connect(server, 80) && (retries-- > 0)) {
 #ifdef SERIAL_DEBUG
     Serial.print(".");
 #endif
@@ -92,28 +92,22 @@ void setup()
   Serial.println(" V");
 #endif
 
-  String url = "/api/v1.6/devices/";
-
-  String values = "{\"temperature\":" + String(temperature) + ", \"humidity\":" + String(humidity) + 
+  String body = "field1=" + String(temperature) + ", &field2=" + String(humidity) +
+                "&field3=" + String(voltage);
 #ifdef PRESSURE_SENSOR
-                  ", \"pressure\":" + String(pressure) + 
-#endif
-                  ", \"battery\":" + String(voltage) + "}";
-
-  String urlLoad = String("POST ") + url + device +
-                   "/ HTTP/1.1\r\n" +
-                   "X-Auth-Token: " + token + "\r\n" +
-                   "Host: " + host + "\r\n" +
-                   "Connection: close\r\n" +
-                   "Content-Type: application/json\r\n" +
-                   "Content-Length: "  + values.length() + "\r\n\r\n" +
-                   values + "\r\n\r\n";
-
-#ifdef SERIAL_DEBUG
-  Serial.print(urlLoad);
+  body += "&field4=" + String(pressure);
 #endif
 
-  client.print(urlLoad);
+  client.print("POST /update HTTP/1.1\n");
+  client.print("Host: api.thingspeak.com\n");
+  client.print("Connection: close\n");
+  client.print("X-THINGSPEAKAPIKEY: " + writeAPIKey + "\n");
+  client.print("Content-Type: application/x-www-form-urlencoded\n");
+  client.print("Content-Length: ");
+  client.print(body.length());
+  client.print("\n\n");
+  client.print(body);
+  client.print("\n\n");
 
   int timeout = 5 * 10;
   while (!client.available() && (timeout-- > 0)) {
@@ -129,10 +123,9 @@ void setup()
 #ifdef SERIAL_DEBUG
   Serial.println("Sleep...");
 #endif
-  ESP.deepSleep(sleepTimeS * 1000000);  
+  ESP.deepSleep(sleepTimeS * 1000000);
 }
 
-void loop() 
+void loop()
 {
 }
-
