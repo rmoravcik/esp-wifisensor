@@ -1,70 +1,53 @@
-dps_sirka = 40+0.2;
-dps_dlzka = 77+0.2;
-dps_vyska = 1.6;
-zapustenie_dps = 6;
-sirka_steny = 2.5;
-sensor_vyska = dps_vyska+zapustenie_dps+21.4;
+include <rounded_cube.scad>
+include <dimensions.scad>
 
-krabicka_sirka = dps_sirka+2*sirka_steny;
-krabicka_dlzka = dps_dlzka+2*sirka_steny;
-krabicka_vyska = sensor_vyska/2+sirka_steny;
-
-module rounded_cube(a,b,c,r){
-    hull(){
-        translate([r,r,0]) cylinder(r=r, h=c, $fn=64);
-        translate([a-r,r,0]) cylinder(r=r, h=c, $fn=64);
-        translate([a-r,b-r,0]) cylinder(r=r, h=c, $fn=64);
-        translate([r,b-r,0]) cylinder(r=r, h=c, $fn=64);
-    }
-}
-
-module krabicka_base(){
-    rounded_cube(krabicka_sirka,krabicka_dlzka,krabicka_vyska,3);
-    translate([1.25,1.25,krabicka_vyska]) rounded_cube(krabicka_sirka-2*1.25, krabicka_dlzka-2*1.25, 2, 2);
+module case_base(){
+    rounded_cube(case_width,case_length,case_height,3);
+    translate([1.25,1.25,case_height]) rounded_cube(case_width-2*1.25, case_length-2*1.25, 2, 2);
 };
 
-module krabicka_cuts(){
-    translate([sirka_steny+1.5, sirka_steny+1.5,sirka_steny]) cube([dps_sirka-3, 31.5, zapustenie_dps+sirka_steny]);
-    translate([sirka_steny, sirka_steny+2*1.5+31.5,sirka_steny]) cube([dps_sirka, dps_dlzka-2*1.5-31.5, zapustenie_dps+sirka_steny]);
-    translate([sirka_steny, sirka_steny,zapustenie_dps+sirka_steny]) cube([dps_sirka, dps_dlzka, krabicka_vyska]);
+module case_cuts(){
+    translate([wall_thickness+1.5, wall_thickness+1.5,wall_thickness]) cube([pcb_width-3, 31.5, chamber_height+wall_thickness]);
+    translate([wall_thickness, wall_thickness+2*1.5+31.5,wall_thickness]) cube([pcb_width, pcb_length-2*1.5-31.5, chamber_height+wall_thickness]);
+    translate([wall_thickness, wall_thickness,chamber_height+wall_thickness]) cube([pcb_width, pcb_length, case_height]);
 
-    translate([krabicka_sirka/2-0.5,14,0]) rounded_cube(1,8,10,0.5);
+    translate([case_width/2-0.5,14,0]) rounded_cube(1,8,10,0.5);
 };
 
-module distanc_base(){
-    translate([28.5+sirka_steny+0.1, 11.5+sirka_steny+0.2, sirka_steny]) cylinder(r=6/2, h=zapustenie_dps,$fn=16);
-    translate([33+sirka_steny+0.1, 60+sirka_steny+0.5, sirka_steny]) cylinder(r=6/2, h=zapustenie_dps,$fn=16);};
+module mounting_base(){
+    translate([28.5+wall_thickness+0.2, 11.5+wall_thickness+0.2, wall_thickness]) cylinder(r=6/2, h=chamber_height,$fn=16);
+    translate([33+wall_thickness+0.2, 60+wall_thickness+0.5, wall_thickness]) cylinder(r=6/2, h=chamber_height,$fn=16);};
 
-module distanc_cuts(){
-    translate([28.5+sirka_steny+0.1, 11.5+sirka_steny+0.1, sirka_steny]) cylinder(r=2/2, h=zapustenie_dps,$fn=16);
+module mounting_cuts(){
+    translate([28.5+wall_thickness+0.2, 11.5+wall_thickness+0.2, wall_thickness]) cylinder(r=2/2, h=chamber_height,$fn=16);
 };
 
-module otvor_base(){
-    translate([krabicka_sirka/2-1.25,13,0]) cube([2.5,12,sirka_steny+2.5]);
+module hole_base(){
+    translate([case_width/2-1.25,13,0]) cube([2.5,12,wall_thickness+2.5]);
 };
 
-module otvor_cuts(){
-    translate([krabicka_sirka/2-0.5,14,0]) rounded_cube(1,8,sirka_steny+2,0.5);
-    translate([krabicka_sirka/2-0.5,20,sirka_steny]) cube([1,8,2]);
-    translate([krabicka_sirka/2-1.25,23.5,sirka_steny]) cube([2.5,2,2.5]);
+module hole_cuts(){
+    translate([case_width/2-0.5,14,0]) rounded_cube(1,8,wall_thickness+2,0.5);
+    translate([case_width/2-0.5,20,wall_thickness]) cube([1,8,2]);
+    translate([case_width/2-1.25,23.5,wall_thickness]) cube([2.5,2,2.5]);
 
 };
 
-module krabicka(){
+module case(){
     difference() {
-        krabicka_base();
-        krabicka_cuts();
+        case_base();
+        case_cuts();
     }
 
     difference() {
-        distanc_base();
-        distanc_cuts();
+        mounting_base();
+        mounting_cuts();
     }
 
     difference() {
-        otvor_base();
-        otvor_cuts();
+        hole_base();
+        hole_cuts();
     }
 };
 
-krabicka();
+case();

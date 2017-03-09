@@ -1,7 +1,7 @@
 wall_thickness = 2.5;
 
-pcb_width = 40+0.2;
-pcb_length = 77+0.2;
+pcb_width = 40+0.4;
+pcb_length = 77+0.4;
 
 sensor_height = 29;
 
