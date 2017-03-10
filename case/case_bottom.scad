@@ -11,26 +11,21 @@ module case_cuts(){
     translate([wall_thickness, wall_thickness+2*1.5+31.5,wall_thickness]) cube([pcb_width, pcb_length-2*1.5-31.5, chamber_height+wall_thickness]);
     translate([wall_thickness, wall_thickness,chamber_height+wall_thickness]) cube([pcb_width, pcb_length, case_height]);
 
-    translate([case_width/2-0.5,14,0]) rounded_cube(1,8,10,0.5);
+    translate([(case_width-(case_width/1.618))/2,11,0]) rounded_cube(case_width/1.618,2,2,0.5);
+    translate([(case_width-(case_width/1.618))/2,16,0]) rounded_cube(case_width/1.618,2,2,0.5);
+    translate([(case_width-(case_width/1.618))/2,21,0]) rounded_cube(case_width/1.618,2,2,0.5);
+
+    translate([(case_width-8)/2,13,1]) cube([8,2,2]);
+    translate([(case_width-8)/2,18,1]) cube([8,2,2]);
+    translate([(case_width-8)/2,23,1]) cube([8,2,2]);
 };
 
 module mounting_base(){
-    translate([28.5+wall_thickness+0.2, 11.5+wall_thickness+0.2, wall_thickness]) cylinder(r=6/2, h=chamber_height,$fn=16);
+    translate([28.8+wall_thickness, 11.6+wall_thickness, wall_thickness]) cylinder(r=6/2, h=chamber_height,$fn=16);
     translate([33+wall_thickness+0.2, 60+wall_thickness+0.5, wall_thickness]) cylinder(r=6/2, h=chamber_height,$fn=16);};
 
 module mounting_cuts(){
-    translate([28.5+wall_thickness+0.2, 11.5+wall_thickness+0.2, wall_thickness]) cylinder(r=2/2, h=chamber_height,$fn=16);
-};
-
-module hole_base(){
-    translate([case_width/2-1.25,13,0]) cube([2.5,12,wall_thickness+2.5]);
-};
-
-module hole_cuts(){
-    translate([case_width/2-0.5,14,0]) rounded_cube(1,8,wall_thickness+2,0.5);
-    translate([case_width/2-0.5,20,wall_thickness]) cube([1,8,2]);
-    translate([case_width/2-1.25,23.5,wall_thickness]) cube([2.5,2,2.5]);
-
+    translate([28.8+wall_thickness, 11.6+wall_thickness, wall_thickness]) cylinder(r=2/2, h=chamber_height,$fn=16);
 };
 
 module case(){
@@ -42,11 +37,6 @@ module case(){
     difference() {
         mounting_base();
         mounting_cuts();
-    }
-
-    difference() {
-        hole_base();
-        hole_cuts();
     }
 };
 
