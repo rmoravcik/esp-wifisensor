@@ -11,13 +11,13 @@ module case_cuts(){
     translate([wall_thickness, wall_thickness+2*1.5+31.5,wall_thickness]) cube([pcb_width, pcb_length-2*1.5-31.5, chamber_height+wall_thickness]);
     translate([wall_thickness, wall_thickness,chamber_height+wall_thickness]) cube([pcb_width, pcb_length, case_height]);
 
-    translate([(case_width-(case_width/1.618))/2,11,0]) rounded_cube(case_width/1.618,2,2,0.5);
-    translate([(case_width-(case_width/1.618))/2,16,0]) rounded_cube(case_width/1.618,2,2,0.5);
-    translate([(case_width-(case_width/1.618))/2,21,0]) rounded_cube(case_width/1.618,2,2,0.5);
+    translate([(case_width-(case_width/1.618))/2,10.5,0]) rounded_cube(case_width/1.618,2,1.5,0.5);
+    translate([(case_width-(case_width/1.618))/2,16,0]) rounded_cube(case_width/1.618,2,1.5,0.5);
+    translate([(case_width-(case_width/1.618))/2,21.5,0]) rounded_cube(case_width/1.618,2,1.5,0.5);
 
-    translate([(case_width-8)/2,13,1]) cube([8,2,2]);
-    translate([(case_width-8)/2,18,1]) cube([8,2,2]);
-    translate([(case_width-8)/2,23,1]) cube([8,2,2]);
+    translate([(case_width-8)/2,12.5,0.8]) cube([8,2,2]);
+    translate([(case_width-8)/2,18,0.8]) cube([8,2,2]);
+    translate([(case_width-8)/2,23.5,0.8]) cube([8,2,2]);
 };
 
 module mounting_base(){
