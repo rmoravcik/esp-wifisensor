@@ -15,6 +15,9 @@ ADC_MODE(ADC_VCC); //vcc read-mode
 const char* ssid = "";
 const char* password = "";
 
+#define MAX_ERROR_RETRY_COUNT 3
+unsigned int errorCounter = MAX_ERROR_RETRY_COUNT;
+const int errorSleepTimeS = 1 * 60;
 const int sleepTimeS = 15 * 60;
 
 const char* server = "api.thingspeak.com";
@@ -25,11 +28,43 @@ SHT21 sht;
 Sodaq_BMP085 bmp;
 #endif
 
+void error(void)
+{
+  errorCounter--;
+
+  if (errorCounter > 0) {
+    ESP.rtcUserMemoryWrite(0, (unsigned int*) &errorCounter, sizeof(unsigned int));
+
+#ifdef SERIAL_DEBUG
+    Serial.println("Sleeping for 1 minute...");
+#endif
+    ESP.deepSleep(errorSleepTimeS * 1000000);
+  } else {
+    errorCounter = MAX_ERROR_RETRY_COUNT;
+    ESP.rtcUserMemoryWrite(0, (unsigned int*) &errorCounter, sizeof(unsigned int));
+
+#ifdef SERIAL_DEBUG
+    Serial.println("Sleeping for 15 minutes...");
+#endif
+    ESP.deepSleep(sleepTimeS * 1000000);
+  }
+}
+
 void setup()
 {
 #ifdef SERIAL_DEBUG
   Serial.begin(115200);
-  Serial.println("Wake up...");
+  Serial.println("Waking up...");
+#endif
+
+  ESP.rtcUserMemoryRead(0, (unsigned int*) &errorCounter, sizeof(unsigned int));
+  if (errorCounter > MAX_ERROR_RETRY_COUNT) {
+    errorCounter = MAX_ERROR_RETRY_COUNT;
+  }
+
+#ifdef SERIAL_DEBUG
+    Serial.print("Error counter: ");
+    Serial.println(errorCounter);
 #endif
 
   sht.begin();
@@ -39,30 +74,54 @@ void setup()
 
   WiFi.setOutputPower(0);
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+
+#ifdef SERIAL_DEBUG
+  Serial.print("Connecting to ");
+  Serial.print(ssid);
+#endif
+  int timeout = 30; // 15 seconds wifi connect timeout
+  while ((WiFi.status() != WL_CONNECTED) && (timeout-- > 0)) {
     delay(500);
 #ifdef SERIAL_DEBUG
     Serial.print(".");
 #endif
   }
-
 #ifdef SERIAL_DEBUG
   Serial.println("");
-  Serial.println("WiFi connected");
+#endif
 
+  if (timeout < 0) {
+#ifdef SERIAL_DEBUG
+    Serial.println("ERROR: Failed to connect!");
+#endif
+    error();
+  }
+
+#ifdef SERIAL_DEBUG
+  Serial.print("WiFi connected. IP: ");
   Serial.println(WiFi.localIP());
 
   Serial.print("Connecting to ");
-  Serial.println(server);
+  Serial.print(server);
 #endif
 
   WiFiClient client;
-  int retries = 5;
 
+  int retries = 5;
   while (!client.connect(server, 80) && (retries-- > 0)) {
 #ifdef SERIAL_DEBUG
     Serial.print(".");
 #endif
+  }
+#ifdef SERIAL_DEBUG
+  Serial.println("");
+#endif
+
+  if (retries < 0) {
+#ifdef SERIAL_DEBUG
+    Serial.println("ERROR: Failed to connect!");
+#endif
+    error();
   }
 
   float temperature = sht.getTemperature();
@@ -109,9 +168,25 @@ void setup()
   client.print(body);
   client.print("\n\n");
 
-  int timeout = 5 * 10;
+#ifdef SERIAL_DEBUG
+  Serial.print("Waiting for reply");
+#endif
+  timeout = 5 * 10; // 5 seconds timeout
   while (!client.available() && (timeout-- > 0)) {
     delay(100);
+#ifdef SERIAL_DEBUG
+    Serial.print(".");
+#endif
+  }
+#ifdef SERIAL_DEBUG
+  Serial.println("");
+#endif
+
+  if (timeout < 0) {
+#ifdef SERIAL_DEBUG
+    Serial.println("ERROR: No response from server!");
+#endif
+    error();
   }
 
   if (!client.available()) {
@@ -120,8 +195,11 @@ void setup()
 #endif
   }
 
+  errorCounter = MAX_ERROR_RETRY_COUNT;
+  ESP.rtcUserMemoryWrite(0, (unsigned int*) &errorCounter, sizeof(unsigned int));
+
 #ifdef SERIAL_DEBUG
-  Serial.println("Sleep...");
+  Serial.println("Sleeping for 15 minutes...");
 #endif
   ESP.deepSleep(sleepTimeS * 1000000);
 }
